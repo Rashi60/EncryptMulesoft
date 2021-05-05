@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="150fca1c-cb4c-42f3-b9b4-8dff803fba0f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="encrptFlow" doc:id="5e41aae5-be65-4ac5-8c4b-22f04d176c1b" >
+		<http:listener doc:name="Listener" doc:id="4ed981dd-7401-460c-b8ab-2d4cb12ae02f" config-ref="HTTP_Listener_config" path="/crypt"/>
+		<ee:transform doc:name="Transform Message" doc:id="9435efaa-c1bc-4ef8-adb2-a14691b7585b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import dw::Crypto
+output application/json
+var test=[1,2,"Rashmi",4,5]
+---
+{ "HMACBinary" : Crypto::HMACBinary("12as" , "xxxxx" ,"HmacSHA512"),
+	"HMACBWith" : Crypto::HMACWith("12as" , "xxxxx" ,"HmacSHA512"),
+	"MD5" : Crypto::MD5("Rashmi" as Binary),
+	"sha1" : test map(value,key) -> ((key):Crypto::SHA1(value) ),
+	 "md2" : Crypto::hashWith(attributes.queryParams.value as Binary, "MD2")
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
